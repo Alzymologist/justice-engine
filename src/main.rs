@@ -12,13 +12,11 @@ use std::path::Path;
 fn read_yaml (path: &Path) -> String {
 let display = path.display();
 
-    // Open the path in read-only mode, returns `io::Result<File>`
     let mut file = match File::open(path) {
         Err(err) => panic!("couldn't open {}: {}", display, err),
         Ok(file) => file,
     };
 
-    // Read the file contents into a string, returns `io::Result<usize>`
     let mut s = String::new();
     match file.read_to_string(&mut s) {
         Err(err) => panic!("couldn't read {}: {}", display, err),
