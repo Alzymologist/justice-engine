@@ -1,30 +1,42 @@
-use bs58;
-use serde_json;
-use tiny_keccak::{IntoXof, KangarooTwelve, Xof};
+// #![allow(unused_imports)]
+// #![allow(unused_variables)]
+// #![allow(dead_code)]
 
-const KANGAROO_OUTPUT_SIZE: usize = 8; // Not equal to hash size in SerializedLaw
+use blake2::{Blake2s256, Digest};
+use std::collections::BTreeMap;
 
-struct SerializedLaw {
-    law: String,
-    hash: String,
-}
+use std::io::prelude::*;
+use std::fs::File;
+use std::path::Path;
 
-fn serialize(raw_law: String) -> SerializedLaw {
-    let bytes = raw_law.into_bytes();
-    let serialized_law = serde_json::to_string(&bytes).unwrap();  // String serialization.
+fn read_yaml (path: &Path) -> String {
+let display = path.display();
 
-    let serialized_law_clone = serialized_law.clone();
-    let mut hasher = KangarooTwelve::new(serialized_law.into_bytes()).into_xof(); // Hash is calculated from a serialized string.
-    let mut output = [0u8; KANGAROO_OUTPUT_SIZE];
-    hasher.squeeze(&mut output[..]);
+    // Open the path in read-only mode, returns `io::Result<File>`
+    let mut file = match File::open(path) {
+        Err(err) => panic!("couldn't open {}: {}", display, err),
+        Ok(file) => file,
+    };
 
-    let hash = bs58::encode(output).into_string(); // Base 58 for better visual representation.
-
-    SerializedLaw { law: serialized_law_clone, hash }
+    // Read the file contents into a string, returns `io::Result<usize>`
+    let mut s = String::new();
+    match file.read_to_string(&mut s) {
+        Err(err) => panic!("couldn't read {}: {}", display, err),
+        Ok(_) => s,
+    }
 }
 
 fn main() {
-    let law = String::from("Any strindsdg here.");
-    let s = serialize(law);
-    println!("{:?}", s.hash);
+    let path = Path::new("example2.yaml");
+    let yaml_string = read_yaml(&path);
+
+    let deserialized: BTreeMap<String, f64> = serde_yaml::from_str(&yaml_string).unwrap();  // Deserialize and
+    let serialized = serde_yaml::to_string(&deserialized).unwrap();  // serialize back, to ensure constent representaion.
+    let serialized_copy = serialized.clone();
+
+    let mut hasher = Blake2s256::new();
+    hasher.update(serialized);
+    let hash = hasher.finalize();
+
+    println!("{}\nhash: {:x}", serialized_copy, hash);
 }
