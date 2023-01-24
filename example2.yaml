@@ -1,2 +1,9 @@
-x: 12.1231130
-y: 99999.890
+foo:
+    - list1
+    - list2
+bar:
+    - 1
+    - 2.00
+numbers:
+  number1: 12
+  number2: 13
