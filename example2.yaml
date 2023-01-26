@@ -3,7 +3,9 @@ foo:
     - list2
 bar:
     - 1
-    - 2.00
+    - 2.000
 numbers:
-  number1: 12
-  number2: 13
+  sub_number1: 12
+  sub_number2: 13
+number1: 2.21300
+number2: 45
