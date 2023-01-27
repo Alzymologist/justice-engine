@@ -84,6 +84,7 @@ name = "justice_hash_rough"
 version = "0.1.0"
 dependencies = [
  "blake2",
+ "linked-hash-map",
  "serde",
  "serde_yaml",
  "yaml-rust",
