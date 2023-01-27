@@ -5,7 +5,9 @@ bar:
     - 1
     - 2.000
 numbers:
-  sub_number1: 12
+  sub_number1: 99.9100000
   sub_number2: 13
 number1: 2.213000000
 number2: 45
+test1:
+  test2: 1
