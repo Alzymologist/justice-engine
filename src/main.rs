@@ -28,7 +28,8 @@ fn sanitize_tree(mut yaml_to_sanitize: Yaml) -> Yaml {
     match yaml_to_sanitize {
         Yaml::Real(initial) => {
             let num: f64 = initial.parse().expect("Failed to parse Real.");
-            if num.fract() == 0.0 {
+            if num.fract() == 0.0  // Precision up to 15 decimal places.
+            {
                 yaml_to_sanitize = Yaml::Integer(num as i64)
             } else {
                 let sanitized = num.to_string();
@@ -57,85 +58,23 @@ fn main() {
     let yaml_string = read_yaml(&path);
     let docs = YamlLoader::load_from_str(&yaml_string).unwrap();
 
-    let hashmap = docs[0].clone();
-    println!("initial_hashtable:\n{:?}", hashmap);
-    let hashmap_to_mod = sanitize_tree(hashmap);
-    //
-    // let s1 = Yaml::String("foo".to_string());
-    // let h1 = Yaml::String("test1".to_string());
-    // let h2 = &hashmap[&h1].as_hash();
-    // println!("access:\n{:?}", h2);
+    let yaml_tree = docs[0].clone();
+    println!("initial_yaml:\n{:?}", yaml_tree);
+    let sanitized_yaml_tree = sanitize_tree(yaml_tree);
 
     {
-        let hash_to_mod_clone = hashmap_to_mod.clone(); // For printing
+        let hash_to_mod_clone = sanitized_yaml_tree.clone(); // For printing
         let mut s = String::new();
         let mut emitter = YamlEmitter::new(&mut s);
-        emitter.dump(&hashmap_to_mod).unwrap(); // Dump the YAML to a String
+        emitter.dump(&sanitized_yaml_tree).unwrap();
 
         let mut hasher = Blake2s256::new();
         hasher.update(s);
         let hash = hasher.finalize();
 
         println!(
-            "sanitized_hashtable:\n{:?} \nhash:\n{:x}",
+            "sanitized_yaml:\n{:?} \nhash:\n{:x}",
             hash_to_mod_clone, hash
         );
     }
 }
-// Dump the YAML object
-
-// let mut hash_to_mod = hash.to_owned();
-// println!("{:?}", hash_to_mod);
-
-// for (key, value) in hash.iter() {
-//     match value {
-//         Yaml::Real(initial) => {
-//             let numeric: f64 = initial.parse().expect("Failed to parse Real.");
-//             let sanitized = numeric_representation.to_string();
-//             hash_to_mod.insert(key.to_owned(), Yaml::Real(sanitized));
-//         }
-//         _ => (),
-//     }
-
-//     // if let Yaml::Real(_) = value {
-//     //     hash_to_mod.insert(key.to_owned(), Yaml::Real("9.99999999".to_string()));
-//     // }
-// }
-// println!("{:?}", hash_to_mod);
-// }
-
-// let path = Path::new("example2.yaml");
-// let yaml_string = read_yaml(&path);
-// let docs = YamlLoader::load_from_str(&yaml_string).unwrap();
-
-// let doc = &docs[0];
-// let doc_clone = doc.clone();
-
-// let y = &Yaml::Real(String::from("9.9999"));
-// for (key, mut item) in doc.as_hash().unwrap() {
-//     item = match item {
-//         Yaml::Real(initial_float_string) => y,
-//         other => other,
-//     }
-// }
-
-//  let y = &Yaml::Real(String::from("9.9999"));
-// for (key, mut item) in doc.as_hash().unwrap() {
-//     item = match item {
-//         Yaml::Real(initial_float_string) => y,
-//         other => other,
-//     }
-// }
-
-// match &doc {
-//     Yaml::
-
-// }
-// for (key, item) in doc_clone2.as_hash().unwrap() {
-//     match item {
-//     Array => println!("key:{:?}, Array", key),
-//     _ => println!("key:{:?}, itemi:{:?}", key, item),
-//     }
-// }
-//     for (key, value) in &doc_clone2 {
-// }
