@@ -10,4 +10,6 @@ numbers:
 number1: 2.213000000
 number2: 45
 test1:
-  test2: 1
+  test2:
+    test3:
+      test4: 7.00000000000000

@@ -26,11 +26,11 @@ fn read_yaml(path: &Path) -> String {
     }
 }
 
-fn sanitize_tree(hashmap_to_modify: &mut LinkedHashMap<Yaml, Yaml>)
+fn sanitize_tree(mut hashmap_to_modify: LinkedHashMap<Yaml, Yaml>) -> LinkedHashMap<Yaml, Yaml>
  {
     let hashmap_to_traverse = hashmap_to_modify.to_owned();
     for (key, value) in hashmap_to_traverse.iter() {
-        println!("initial:\n{:?}", hashmap_to_modify[&key]);
+        // println!("initial:\n{:?}", hashmap_to_modify[&key]);
         match value {
             Yaml::Real(initial) => {
                 let numeric: f64 = initial.parse().expect("Failed to parse Real.");
@@ -38,10 +38,15 @@ fn sanitize_tree(hashmap_to_modify: &mut LinkedHashMap<Yaml, Yaml>)
                 hashmap_to_modify.insert(key.to_owned(), Yaml::Real(sanitized));
             }
             Yaml::Hash(deeper_hashmap_to_traverse) => {
-
-                if let Yaml::Hash(mut hashmap2) = hashmap_to_modify[&key].to_owned(){
-                sanitize_tree(&mut hashmap2);
-                }
+                if let Yaml::Hash(mut h) = hashmap_to_modify[key].to_owned()
+                    {
+                h = sanitize_tree(h);
+                hashmap_to_modify.insert(key.to_owned(),  Yaml::Hash(h));
+                    }
+                // hashmap_to_modify[key] = sanitize_tree(hashmap_to_modify[key]);
+                // if let Yaml::Hash(mut hashmap2) = hashmap_to_modify[&key].to_owned(){
+                // sanitize_tree(&mut hashmap2);
+                // }
 
                 // let mut deeper_hashmap_to_modify = &hashmap_to_modify[&key];
                 // sanitize_tree(deeper_hashmap_to_modify);
@@ -49,6 +54,7 @@ fn sanitize_tree(hashmap_to_modify: &mut LinkedHashMap<Yaml, Yaml>)
             _ => (),
         }
     }
+     hashmap_to_modify
 }
 
 fn main() {
@@ -59,7 +65,7 @@ fn main() {
     if let Yaml::Hash(hashmap) = &docs[0] {
         println!("initial_hashtable:\n{:?}", hashmap);
         let mut hashmap_to_mod = hashmap.to_owned();
-        sanitize_tree(&mut hashmap_to_mod);
+        hashmap_to_mod = sanitize_tree(hashmap_to_mod);
         //
         let s1 = Yaml::String("foo".to_string());
         let h1 = Yaml::String("test1".to_string());
