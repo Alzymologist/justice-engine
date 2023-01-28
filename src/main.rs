@@ -36,9 +36,7 @@ fn sanitize_tree(mut yaml_to_sanitize: Yaml) -> Yaml {
         Yaml::Hash(ref mut hashmap_to_modify) => {
             let hashmap_to_traverse = hashmap_to_modify.clone();
             for (key, value) in hashmap_to_traverse.iter() {
-                let mut val = value.clone();
-                val = sanitize_tree(val);
-                hashmap_to_modify.insert(key.to_owned(), val);
+                hashmap_to_modify.insert(key.to_owned(), sanitize_tree(value.clone()));
                 }
         }
         _ => (),
