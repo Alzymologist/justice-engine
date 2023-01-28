@@ -26,35 +26,24 @@ fn read_yaml(path: &Path) -> String {
     }
 }
 
-fn sanitize_tree(mut hashmap_to_modify: LinkedHashMap<Yaml, Yaml>) -> LinkedHashMap<Yaml, Yaml>
- {
-    let hashmap_to_traverse = hashmap_to_modify.to_owned();
-    for (key, value) in hashmap_to_traverse.iter() {
-        // println!("initial:\n{:?}", hashmap_to_modify[&key]);
-        match value {
-            Yaml::Real(initial) => {
-                let numeric: f64 = initial.parse().expect("Failed to parse Real.");
-                let sanitized = numeric.to_string();
-                hashmap_to_modify.insert(key.to_owned(), Yaml::Real(sanitized));
-            }
-            Yaml::Hash(deeper_hashmap_to_traverse) => {
-                if let Yaml::Hash(mut h) = hashmap_to_modify[key].to_owned()
-                    {
-                h = sanitize_tree(h);
-                hashmap_to_modify.insert(key.to_owned(),  Yaml::Hash(h));
-                    }
-                // hashmap_to_modify[key] = sanitize_tree(hashmap_to_modify[key]);
-                // if let Yaml::Hash(mut hashmap2) = hashmap_to_modify[&key].to_owned(){
-                // sanitize_tree(&mut hashmap2);
-                // }
-
-                // let mut deeper_hashmap_to_modify = &hashmap_to_modify[&key];
-                // sanitize_tree(deeper_hashmap_to_modify);
-            }
-            _ => (),
+fn sanitize_tree(mut yaml_to_sanitize: Yaml) -> Yaml {
+    match yaml_to_sanitize {
+        Yaml::Real(initial) => {
+            let numeric: f64 = initial.parse().expect("Failed to parse Real.");
+            let sanitized = numeric.to_string();
+            yaml_to_sanitize = Yaml::Real(sanitized);
         }
+        Yaml::Hash(ref mut hashmap_to_modify) => {
+            let hashmap_to_traverse = hashmap_to_modify.clone();
+            for (key, value) in hashmap_to_traverse.iter() {
+                let mut val = value.clone();
+                val = sanitize_tree(val);
+                hashmap_to_modify.insert(key.to_owned(), val);
+                }
+        }
+        _ => (),
     }
-     hashmap_to_modify
+    yaml_to_sanitize
 }
 
 fn main() {
@@ -62,31 +51,29 @@ fn main() {
     let yaml_string = read_yaml(&path);
     let docs = YamlLoader::load_from_str(&yaml_string).unwrap();
 
-    if let Yaml::Hash(hashmap) = &docs[0] {
-        println!("initial_hashtable:\n{:?}", hashmap);
-        let mut hashmap_to_mod = hashmap.to_owned();
-        hashmap_to_mod = sanitize_tree(hashmap_to_mod);
-        //
-        let s1 = Yaml::String("foo".to_string());
-        let h1 = Yaml::String("test1".to_string());
-        let h2 = &hashmap[&h1].as_hash();
-        println!("access:\n{:?}", h2);
+    let hashmap = docs[0].clone();
+    println!("initial_hashtable:\n{:?}", hashmap);
+    let hashmap_to_mod = sanitize_tree(hashmap);
+    //
+    // let s1 = Yaml::String("foo".to_string());
+    // let h1 = Yaml::String("test1".to_string());
+    // let h2 = &hashmap[&h1].as_hash();
+    // println!("access:\n{:?}", h2);
 
-        {
-            let hash_to_mod_clone = hashmap_to_mod.clone(); // For printing
-            let mut s = String::new();
-            let mut emitter = YamlEmitter::new(&mut s);
-            emitter.dump(&Yaml::Hash(hashmap_to_mod)).unwrap(); // Dump the YAML to a String
+    {
+        let hash_to_mod_clone = hashmap_to_mod.clone(); // For printing
+        let mut s = String::new();
+        let mut emitter = YamlEmitter::new(&mut s);
+        emitter.dump(&hashmap_to_mod).unwrap(); // Dump the YAML to a String
 
-            let mut hasher = Blake2s256::new();
-            hasher.update(s);
-            let hash = hasher.finalize();
+        let mut hasher = Blake2s256::new();
+        hasher.update(s);
+        let hash = hasher.finalize();
 
-            println!(
-                "sanitized_hashtable:\n{:?} \nhash:\n{:x}",
-                hash_to_mod_clone, hash
-            );
-        }
+        println!(
+            "sanitized_hashtable:\n{:?} \nhash:\n{:x}",
+            hash_to_mod_clone, hash
+        );
     }
 }
 // Dump the YAML object
