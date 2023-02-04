@@ -1,10 +1,9 @@
-#![allow(unused_imports)]
-#![allow(unused_variables)]
-#![allow(dead_code)]
+// #![allow(unused_imports)]
+// #![allow(unused_variables)]
+// #![allow(dead_code)]
 
+use yew::prelude::*;
 use blake2::{Blake2s256, Digest};
-use linked_hash_map::LinkedHashMap;
-use std::collections::BTreeMap;
 use yaml_rust::{Yaml, YamlEmitter, YamlLoader};
 
 use std::fs::File;
@@ -53,7 +52,30 @@ fn sanitize_tree(mut yaml_to_sanitize: Yaml) -> Yaml {
     yaml_to_sanitize
 }
 
+
+#[function_component]
+fn App() -> Html {
+    let counter = use_state(|| 0);
+    let onclick = {
+        let counter = counter.clone();
+        move |_| {
+            let value = *counter + 1;
+            counter.set(value);
+        }
+    };
+
+    html! {
+        <div>
+            <button {onclick}>{ "+1" }</button>
+            <p>{ *counter }</p>
+        </div>
+    }
+}
+
+
 fn main() {
+    yew::Renderer::<App>::new().render();
+
     let path = Path::new("example2.yaml");
     let yaml_string = read_yaml(&path);
     let docs = YamlLoader::load_from_str(&yaml_string).unwrap();
