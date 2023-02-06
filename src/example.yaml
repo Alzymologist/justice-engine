@@ -5,11 +5,11 @@ bar:
     - 1
     - 2.000
 numbers:
-  sub_number1: 99.9100000
+  sub_number1: 99.910
   sub_number2: 13
-number1: 2.213000000
+number1: 2.213000
 number2: 45
 test1:
   test2:
     test3:
-      test4: 7.0000000000000001
+      test4: 7.000001

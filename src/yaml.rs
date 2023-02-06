@@ -1,0 +1,47 @@
+use std::fs::File;
+use std::io::prelude::*;
+use std::path::Path;
+use yaml_rust::Yaml;
+
+pub fn read_yaml(path: &Path) -> String {
+    let display = path.display();
+    let mut file = match File::open(path) {
+        Err(err) => panic!("couldn't open {}: {}", display, err),
+        Ok(file) => file,
+    };
+    let mut s = String::new();
+    match file.read_to_string(&mut s) {
+        Err(err) => panic!("couldn't read {}: {}", display, err),
+        Ok(_) => s,
+    }
+}
+
+pub fn sanitize_tree(mut yaml_to_sanitize: Yaml) -> Yaml {
+    match yaml_to_sanitize {
+        Yaml::Real(initial) => {
+            let num: f64 = initial.parse().expect("Failed to parse Real.");
+            if num.fract() == 0.0
+            // Precision up to 15 decimal places.
+            {
+                yaml_to_sanitize = Yaml::Integer(num as i64)
+            } else {
+                let sanitized = num.to_string();
+                yaml_to_sanitize = Yaml::Real(sanitized);
+            }
+        }
+        Yaml::Hash(ref mut hashmap_to_modify) => {
+            let hashmap_to_traverse = hashmap_to_modify.clone();
+            for (key, value) in hashmap_to_traverse.iter() {
+                hashmap_to_modify.insert(key.to_owned(), sanitize_tree(value.clone()));
+            }
+        }
+        Yaml::Array(ref mut vec) => {
+            let vec_to_traverse = vec.clone();
+            for (i, element) in vec_to_traverse.iter().enumerate() {
+                vec[i] = sanitize_tree(element.clone());
+            }
+        }
+        _ => (),
+    }
+    yaml_to_sanitize
+}
