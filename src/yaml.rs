@@ -1,7 +1,10 @@
+use blake2::{Blake2s256, Digest};
+use hex_literal::hex;
 use std::fs::File;
 use std::io::prelude::*;
 use std::path::Path;
-use yaml_rust::Yaml;
+use std::str;
+use yaml_rust::{Yaml, YamlEmitter};
 
 pub fn read_yaml(path: &Path) -> String {
     let display = path.display();
@@ -44,4 +47,15 @@ pub fn sanitize_tree(mut yaml_to_sanitize: Yaml) -> Yaml {
         _ => (),
     }
     yaml_to_sanitize
+}
+
+pub fn yaml_to_hash(sanitized_yaml: Yaml) -> String {
+    let mut s = String::new();
+    let mut emitter = YamlEmitter::new(&mut s);
+    emitter.dump(&sanitized_yaml).unwrap();
+
+    let mut hasher = Blake2s256::new();
+    hasher.update(s);
+    let hash = hasher.finalize();
+    hash.escape_ascii().to_string()
 }
