@@ -48,6 +48,8 @@ pub fn yaml_form() -> Html {
         out_str
     };
 
+    let hash = yaml::yaml_to_hash(sanitized_yaml_tree);
+
     html! {
         <form>
             <YamlInput
@@ -57,6 +59,7 @@ pub fn yaml_form() -> Html {
         <div style="white-space:pre">{"Read YAML:"}<br/>{read_tree_for_printing}</div>
         <hr/>
         <div style="white-space:pre">{"Sanitized YAML:"}<br/>{sanitized_tree_for_printing}</div>
+        <p>{"Hash: "}<br/>{hash}</p>
         </form>
     }
 }

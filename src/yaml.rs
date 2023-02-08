@@ -5,6 +5,7 @@ use std::io::prelude::*;
 use std::path::Path;
 use std::str;
 use yaml_rust::{Yaml, YamlEmitter};
+use hex::encode;
 
 pub fn read_yaml(path: &Path) -> String {
     let display = path.display();
@@ -57,5 +58,5 @@ pub fn yaml_to_hash(sanitized_yaml: Yaml) -> String {
     let mut hasher = Blake2s256::new();
     hasher.update(s);
     let hash = hasher.finalize();
-    hash.escape_ascii().to_string()
+    hex::encode(hash)
 }
