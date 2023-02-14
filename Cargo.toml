@@ -12,7 +12,15 @@ blake2 = "0.10.6"
 yew = { version = "0.20.0", features = ["csr"] }
 yew-stdweb = "0.18.0"
 wasm-bindgen = "0.2.84"
+wasm-bindgen-futures = "0.4"
 gloo = "0.8.0"
+gloo-net = "0.2.6"
 web-sys = { version ="0.3.61", features = ["HtmlInputElement"] }
 hex-literal = "0.3.4"
 hex = "0.4.3"
+
+libp2p = { version = "0.50.0", features = ["full", "tcp"] }
+libp2p-wasm-ext = "0.38.0"
+libp2p-noise = "0.41.0"
+libp2p-yamux = "0.42.0"
+libp2p-mplex = "0.38.0"

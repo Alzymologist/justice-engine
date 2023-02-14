@@ -6,6 +6,8 @@ use yew::prelude::*;
 
 use crate::yaml; // Homemade crate.
 
+use crate::storage::Storage;
+
 const RAW_YAML_EXAMPLE: &str = include_str!("example.yaml"); // Will be used for the initial state.
 
 #[derive(Properties, PartialEq)]
@@ -90,9 +92,12 @@ pub fn yaml_input(p: &Properties) -> Html {
 
 #[function_component(App)]
 pub fn app() -> Html {
+    let Storage = Storage::new();
+
     html! {
         <div>
             <YamlForm/>
         </div>
     }
 }
+

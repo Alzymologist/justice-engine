@@ -2,6 +2,7 @@
 // #![allow(unused_variables)]
 // #![allow(dead_code)]
 //
+mod storage;
 mod web;
 mod yaml;
 
