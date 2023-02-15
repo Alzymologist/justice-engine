@@ -1,8 +1,16 @@
-use libp2p::{core::upgrade::{SelectUpgrade, Version}, identity, kad::{Kademlia, KademliaEvent, record::store::MemoryStore}, Multiaddr, PeerId, swarm::{NetworkBehaviour, Swarm, SwarmEvent}, Transport, wasm_ext};
+use libp2p::{core::upgrade::{SelectUpgrade, Version}, identity, kad::{GetClosestPeersError, Kademlia, KademliaConfig, KademliaEvent, QueryResult, record::store::MemoryStore}, Multiaddr, PeerId, swarm::{NetworkBehaviour, Swarm, SwarmEvent}, Transport, wasm_ext};
+
+const BOOTNODES: [&str; 4] = [
+    "QmNnooDu7bfjPFoTZYxMNLWUQJyrVwtbZg5gBMjTezGAJN",
+    "QmQCU2EcMqAqQPR2i9bChDtGNJchTbq5TbXJJ16u19uLTa",
+    "QmbLHAnMoJPWSCR5Zhtx6BHJX9KiKNN6tpvbUcqanj75Nb",
+    "QmcZf59bWwK5XFi76CZX8cbJ4BhTzzA3gU1ZjYZcYW3dwt",
+];
 
 pub struct Storage {
     local_key: identity::Keypair,
-    local_peer_id: PeerId,
+    pub local_peer_id: PeerId,
+    pub swarm: Swarm<Kademlia<MemoryStore>>,
 }
 
 impl Storage {
@@ -22,41 +30,30 @@ impl Storage {
 
         let store = MemoryStore::new(local_peer_id);
 
-        let kademlia = Kademlia::new(local_peer_id, store);
+        let mut cfg = KademliaConfig::default();
+        //cfg.set_query_timeout(Duration::from_secs(300));
 
-        let behaviour = MyBehaviour { kademlia };
-
-        let swarm = Swarm::with_wasm_executor(
+        let mut behaviour = Kademlia::with_config(local_peer_id, store, cfg);
+        
+        for peer in &BOOTNODES {
+            behaviour.add_address(&peer.parse().unwrap(), "/dnsaddr/bootstrap.libp2p.io".parse().unwrap());
+        }
+        let mut swarm = Swarm::with_wasm_executor(
             transport,
             behaviour,
             local_peer_id,
         );
-
-        wasm_bindgen_futures::spawn_local(async move {
-            
+        /*
+        let future = wasm_bindgen_futures::spawn_local(async move {
+            swarm.listen_on("/ip4/0.0.0.0/tcp/0".parse().unwrap()).unwrap();
         });
+        */
 
         Storage {
             local_key,
             local_peer_id,
+            swarm,
         }
     }
 }
-
-    #[derive(NetworkBehaviour)]
-    #[behaviour(out_event = "MyBehaviourEvent")]
-    struct MyBehaviour {
-        kademlia: Kademlia<MemoryStore>,
-    }
-
-    #[allow(clippy::large_enum_variant)]
-    enum MyBehaviourEvent {
-        Kademlia(KademliaEvent),
-    }
-
-    impl From<KademliaEvent> for MyBehaviourEvent {
-        fn from(event: KademliaEvent) -> Self {
-            MyBehaviourEvent::Kademlia(event)
-        }
-    }
 
