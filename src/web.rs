@@ -1,7 +1,7 @@
 use gloo::console::log;
 use wasm_bindgen::JsCast;
 use web_sys::HtmlInputElement;
-use yaml_rust::{YamlEmitter, YamlLoader};
+use yaml_rust::{YamlEmitter, YamlLoader, Yaml};
 use yew::prelude::*;
 
 use crate::yaml; // Homemade crate.
@@ -26,19 +26,21 @@ pub fn yaml_form() -> Html {
         cloned_yaml_state.set(s);
     });
 
+    let status_indicator: &str;
     let read_string = &*yaml_state;
-    let read_yaml_vec = YamlLoader::load_from_str(read_string).unwrap();
-    let yaml_tree = read_yaml_vec[0].clone();
-    let read_tree_for_printing = {
-        let mut out_str = String::new();
-        {
-            let mut emitter = YamlEmitter::new(&mut out_str);
-            emitter.dump(&yaml_tree).unwrap(); // dump the YAML object to a String
+
+    let yaml_tree = match YamlLoader::load_from_str(read_string){
+        Ok(t) => {
+            status_indicator = "Yaml is correct 👌";
+            t[0].clone()
         }
-        out_str
+        Err(e) => {
+            status_indicator = "Yaml is broken ❗";
+            Yaml::from_str(" ").clone()
+        }
     };
 
-    let sanitized_yaml_tree = yaml::sanitize_tree(yaml_tree.clone());
+    let sanitized_yaml_tree = yaml::sanitize_tree(yaml_tree);
     let sanitized_tree_for_printing = {
         let mut out_str = String::new();
         {
@@ -55,10 +57,11 @@ pub fn yaml_form() -> Html {
             <YamlInput
             name="yaml_form" handle_onchange={callback} value={read_string.clone()} // Properties
             />
-        <hr/>
-        <div style="white-space:pre">{"Read YAML:"}<br/>{read_tree_for_printing}</div>
+        <div style="white-space:pre">{status_indicator}</div>
+        <br/>
         <hr/>
         <div style="white-space:pre">{"Sanitized YAML:"}<br/>{sanitized_tree_for_printing}</div>
+        <hr/>
         <p>{"Hash: "}<br/>{hash}</p>
         </form>
     }
