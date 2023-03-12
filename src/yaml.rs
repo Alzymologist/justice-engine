@@ -7,19 +7,6 @@ use std::str;
 use yaml_rust::{Yaml, YamlEmitter};
 use hex::encode;
 
-pub fn read_yaml(path: &Path) -> String {
-    let display = path.display();
-    let mut file = match File::open(path) {
-        Err(err) => panic!("couldn't open {}: {}", display, err),
-        Ok(file) => file,
-    };
-    let mut s = String::new();
-    match file.read_to_string(&mut s) {
-        Err(err) => panic!("couldn't read {}: {}", display, err),
-        Ok(_) => s,
-    }
-}
-
 pub fn sanitize_tree(mut yaml_to_sanitize: Yaml) -> Yaml {
     match yaml_to_sanitize {
         Yaml::Real(initial) => {
