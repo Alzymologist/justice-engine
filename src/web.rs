@@ -6,7 +6,7 @@ use yew::prelude::*;
 
 use crate::yaml; // Homemade crate.
 
-const RAW_YAML_EXAMPLE: &str = include_str!("example.yaml"); // Will be used for the initial state.
+const RAW_YAML_EXAMPLE: &str = include_str!("justice-example.yaml"); // Will be used for the initial state.
 
 #[derive(Properties, PartialEq)]
 pub struct Properties {

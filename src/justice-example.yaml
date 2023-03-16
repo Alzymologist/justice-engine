@@ -1,0 +1,25 @@
+components:
+  purpose_of_tile:
+    type: purpose_of_tile
+    props:
+      title: string
+      trackable: action
+      untrackable: string
+  to_supertile:
+    type: to_supertile # what playing this tile will give to supertile
+    props:
+      title: string
+      supertile: TILE_ID123
+      benefit:
+        items:
+          A: 200
+          B: 19.99
+        data:
+          - private_data1
+          - private_data2
+  to_players: # what playing this tile will give to players
+    type: to_players
+    props:
+      title: string
+      player: ROLE_NAME
+      benefit: string
