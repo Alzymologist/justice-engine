@@ -1,2 +1,5 @@
 [build]
 dist = "docs"
+
+[serve]
+port = 3000
