@@ -203,9 +203,6 @@ function makeMutClosure(arg0, arg1, dtor, f) {
 
     return real;
 }
-function __wbg_adapter_18(arg0, arg1, arg2) {
-    wasm._dyn_core__ops__function__FnMut__A____Output___R_as_wasm_bindgen__closure__WasmClosure___describe__invoke__h0c83420f3c6d637a(arg0, arg1, addHeapObject(arg2));
-}
 
 let stack_pointer = 128;
 
@@ -214,12 +211,16 @@ function addBorrowedObject(obj) {
     heap[--stack_pointer] = obj;
     return stack_pointer;
 }
-function __wbg_adapter_21(arg0, arg1, arg2) {
+function __wbg_adapter_18(arg0, arg1, arg2) {
     try {
         wasm._dyn_core__ops__function__FnMut___A____Output___R_as_wasm_bindgen__closure__WasmClosure___describe__invoke__h79794d96e1d8ced9(arg0, arg1, addBorrowedObject(arg2));
     } finally {
         heap[stack_pointer++] = undefined;
     }
+}
+
+function __wbg_adapter_21(arg0, arg1, arg2) {
+    wasm._dyn_core__ops__function__FnMut__A____Output___R_as_wasm_bindgen__closure__WasmClosure___describe__invoke__h0c83420f3c6d637a(arg0, arg1, addHeapObject(arg2));
 }
 
 let cachedUint32Memory0 = null;
@@ -691,12 +692,12 @@ function getImports() {
     imports.wbg.__wbindgen_throw = function(arg0, arg1) {
         throw new Error(getStringFromWasm0(arg0, arg1));
     };
-    imports.wbg.__wbindgen_closure_wrapper4583 = function(arg0, arg1, arg2) {
-        const ret = makeMutClosure(arg0, arg1, 343, __wbg_adapter_18);
+    imports.wbg.__wbindgen_closure_wrapper3655 = function(arg0, arg1, arg2) {
+        const ret = makeMutClosure(arg0, arg1, 236, __wbg_adapter_18);
         return addHeapObject(ret);
     };
-    imports.wbg.__wbindgen_closure_wrapper4725 = function(arg0, arg1, arg2) {
-        const ret = makeMutClosure(arg0, arg1, 356, __wbg_adapter_21);
+    imports.wbg.__wbindgen_closure_wrapper5056 = function(arg0, arg1, arg2) {
+        const ret = makeMutClosure(arg0, arg1, 315, __wbg_adapter_21);
         return addHeapObject(ret);
     };
 
@@ -734,7 +735,7 @@ function initSync(module) {
 
 async function init(input) {
     if (typeof input === 'undefined') {
-        input = new URL('ipfs-playground-5216d0afdc310e9e_bg.wasm', import.meta.url);
+        input = new URL('ipfs-playground-4a192b5046537c66_bg.wasm', import.meta.url);
     }
     const imports = getImports();
 
