@@ -1,34 +1,38 @@
 use gloo_net::http::Request;
-use serde::Deserialize;
-use yaml_rust::{Yaml, YamlEmitter, YamlLoader};
+use yaml_rust::{Yaml, YamlLoader};
 use yew::prelude::*;
+use tokio::runtime::Builder;
 
-#[function_component(App)]
-fn app() -> Html {
-    let yamls = use_state(|| YamlLoader::load_from_str(" ").unwrap());
-    {
-        let yamls = yamls.clone();
-        wasm_bindgen_futures::spawn_local(async move {
-            let fetched_yamls: String = Request::get(
-                "http://127.0.0.1:8081/ipfs/QmfUwJRRDZxGo8jMvKVGxj6FDn8xsMXcyEbRrYaScCXhRv",
-            )
+fn get_yamls() -> Vec<Yaml> {
+
+    let rt = Builder::new_current_thread()
+        .build()
+        .unwrap();
+
+    let request = Request::get("http://127.0.0.1:8081/ipfs/QmfUwJRRDZxGo8jMvKVGxj6FDn8xsMXcyEbRrYaScCXhRv");
+
+    let fetched_yamls = rt.block_on(async {
+        let response_text = request
             .send()
             .await
             .unwrap()
             .text()
             .await
             .unwrap();
-            let fetched_yamls = YamlLoader::load_from_str(&fetched_yamls).unwrap();
-            yamls.set(fetched_yamls);
-        });
-    }
+        YamlLoader::load_from_str(&response_text).unwrap()
+    });
+    fetched_yamls
+}
+
+
+#[function_component(App)]
+fn app() -> Html {
     html! {
         <>
-        {format!("{:?}", yamls)}
+        {format!("{:?}", get_yamls())}
         </>
     }
 }
-
 
 fn main() {
     yew::Renderer::<App>::new().render();
