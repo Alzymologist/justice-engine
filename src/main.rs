@@ -5,11 +5,11 @@ use yew::prelude::*;
 
 #[function_component(App)]
 fn app() -> Html {
-    let videos = use_state(|| YamlLoader::load_from_str(" ").unwrap());
+    let yamls = use_state(|| YamlLoader::load_from_str(" ").unwrap());
     {
-        let videos = videos.clone();
+        let yamls = yamls.clone();
         wasm_bindgen_futures::spawn_local(async move {
-            let fetched_videos: String = Request::get(
+            let fetched_yamls: String = Request::get(
                 "http://127.0.0.1:8081/ipfs/QmfUwJRRDZxGo8jMvKVGxj6FDn8xsMXcyEbRrYaScCXhRv",
             )
             .send()
@@ -18,13 +18,13 @@ fn app() -> Html {
             .text()
             .await
             .unwrap();
-            let fetched_videos = YamlLoader::load_from_str(&fetched_videos).unwrap();
-            videos.set(fetched_videos);
+            let fetched_yamls = YamlLoader::load_from_str(&fetched_yamls).unwrap();
+            yamls.set(fetched_yamls);
         });
     }
     html! {
         <>
-        {format!("{:?}", videos)}
+        {format!("{:?}", yamls)}
         </>
     }
 }
