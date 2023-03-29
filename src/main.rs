@@ -1,3 +1,4 @@
+use yew::prelude::*;
 use base64::{Engine, engine::general_purpose};
 use reqwest::Client;
 use serde::Deserialize;
@@ -21,11 +22,11 @@ fn read_config() -> Result<Config, Box<dyn Error>> {
     Ok(config)
 }
 
-fn main() -> Result<(), Box<dyn Error>> {
+fn request_tree() -> Result<String, Box<dyn Error>> {
     let config = read_config()?;
 
     let rt = tokio::runtime::Runtime::new()?;
-    rt.block_on(async {
+    let response2_text = rt.block_on(async {
         let auth_header = format!(
             "Basic {}",
             general_purpose::STANDARD.encode(&format!("{}:{}", config.PROJECT_ID, config.PROJECT_SECRET))
@@ -49,8 +50,55 @@ fn main() -> Result<(), Box<dyn Error>> {
             .await?;
         println!("{:?}", response2);
         let response2_text = response2.text().await?;
-        println!("{}", response2_text);
 
-        Result::<_, Box<dyn Error>>::Ok(())
-    })
+        Result::<String, Box<dyn Error>>::Ok(response2_text)
+    })?;
+
+    Ok(response2_text)
+}
+
+    //////
+
+
+// use gloo_net::http::Request;
+// use yaml_rust::{Yaml, YamlLoader};
+// use tokio::runtime::Builder;
+
+// fn get_yamls() -> Vec<Yaml> {
+
+//     let rt = Builder::new_current_thread()
+//         .build()
+//         .unwrap();
+
+//     let request = Request::get("http://127.0.0.1:8081/ipfs/QmfUwJRRDZxGo8jMvKVGxj6FDn8xsMXcyEbRrYaScCXhRv");
+
+//     let fetched_yamls = rt.block_on(async {
+//         let response_text = request
+//             .send()
+//             .await
+//             .unwrap()
+//             .text()
+//             .await
+//             .unwrap();
+//         YamlLoader::load_from_str(&response_text).unwrap()
+//     });
+//     fetched_yamls
+// }
+
+
+#[function_component(App)]
+fn app() -> Html {
+    let string_to_render = match request_tree() {
+        Ok(s) => {s},
+        Err(e) => {e.to_string() }};
+
+    html! {
+        <>
+        {format!("{:?}", string_to_render)}
+        </>
+    }
+}
+
+fn main() {
+    yew::Renderer::<App>::new().render();
 }
