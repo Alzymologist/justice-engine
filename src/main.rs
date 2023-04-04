@@ -1,5 +1,5 @@
 use base64::{Engine, engine::general_purpose};
-use log::{info, error};
+use gloo::console::log;
 use reqwasm::http::{Request, Method};
 use wasm_bindgen_futures::spawn_local;
 use yew::functional::{use_effect, use_state};
@@ -11,8 +11,6 @@ const ENDPOINT: &str = "https://ipfs.infura.io:5001";
 const HASH: &str = "QmfUwJRRDZxGo8jMvKVGxj6FDn8xsMXcyEbRrYaScCXhRv";
 
 async fn request_tree() -> String {
-    console_log::init_with_level(log::Level::Debug).expect("Error initializing console_log");
-
         let auth_header = format!(
             "Basic {}",
             general_purpose::STANDARD.encode(&format!("{}:{}", PROJECT_ID, PROJECT_SECRET))
