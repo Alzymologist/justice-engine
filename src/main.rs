@@ -1,7 +1,6 @@
 use base64::{Engine, engine::general_purpose};
 use log::{info, error};
 use reqwasm::http::{Request, Method};
-use reqwasm::Error;
 use wasm_bindgen_futures::spawn_local;
 use yew::functional::{use_effect, use_state};
 use yew::prelude::*;
@@ -19,14 +18,16 @@ async fn request_tree() -> String {
             general_purpose::STANDARD.encode(&format!("{}:{}", PROJECT_ID, PROJECT_SECRET))
         );
 
-        let res = Request::new(&format!("{}/api/v0/cat?arg={}", ENDPOINT, HASH))
+        let result = Request::new(&format!("{}/api/v0/cat?arg={}", ENDPOINT, HASH))
             .method(Method::POST)
             .header("Authorization", &auth_header)
             .send()
             .await;
 
-        let r = res.unwrap().text().await.unwrap();
-        r
+        match result {
+            Ok(res) => res.text().await.unwrap(),
+            Err(err) => err.to_string(),
+        }
 }
 
 
