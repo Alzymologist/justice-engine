@@ -11,7 +11,7 @@ const PROJECT_SECRET: &str = "78c624acbfe219c5d0b4a8566c867ab0";
 const ENDPOINT: &str = "https://ipfs.infura.io:5001";
 const HASH: &str = "QmfUwJRRDZxGo8jMvKVGxj6FDn8xsMXcyEbRrYaScCXhRv";
 
-async fn request_tree() -> Result<String, Error> {
+async fn request_tree() -> String {
     console_log::init_with_level(log::Level::Debug).expect("Error initializing console_log");
 
         let auth_header = format!(
@@ -19,13 +19,14 @@ async fn request_tree() -> Result<String, Error> {
             general_purpose::STANDARD.encode(&format!("{}:{}", PROJECT_ID, PROJECT_SECRET))
         );
 
-        let response = Request::new(&format!("{}/api/v0/cat?arg={}", ENDPOINT, HASH))
+        let res = Request::new(&format!("{}/api/v0/cat?arg={}", ENDPOINT, HASH))
             .method(Method::POST)
             .header("Authorization", &auth_header)
             .send()
             .await;
 
-        Ok(String::from("Hello"))
+        let r = res.unwrap().text().await.unwrap();
+        r
 }
 
 
@@ -35,12 +36,8 @@ fn app() -> Html {
     {
         let response_state = response_state.clone();
             spawn_local(async move {
-                let result = request_tree().await;
-                let message = match result {
-                    Ok(s) => s,
-                    Err(e) => e.to_string(),
-                };
-                response_state.set(message);
+                let result = request_tree().await; 
+                response_state.set(result);
             });
     }
     html! {
