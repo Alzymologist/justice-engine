@@ -16,3 +16,6 @@ gloo = "0.8.0"
 web-sys = { version ="0.3.61", features = ["HtmlInputElement"] }
 hex-literal = "0.3.4"
 hex = "0.4.3"
+base64 = "0.21.0"
+reqwasm = "0.5.0"
+wasm-bindgen-futures = "0.4.34"
