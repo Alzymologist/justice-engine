@@ -1,17 +1,16 @@
+use base64::{engine::general_purpose, Engine};
+use reqwasm::http::{Method, Request};
 use wasm_bindgen::JsCast;
+use wasm_bindgen_futures::spawn_local;
 use web_sys::HtmlInputElement;
 use yew::prelude::*;
-use base64::{Engine, engine::general_purpose};
-use gloo::console::log;
-use reqwasm::http::{Request, Method};
-use wasm_bindgen_futures::spawn_local;
 
 mod yaml;
 
 const PROJECT_ID: &str = "2NdtdwZgrdj6fwMubLQMiMTs5nH";
 const PROJECT_SECRET: &str = "78c624acbfe219c5d0b4a8566c867ab0";
 const ENDPOINT: &str = "https://ipfs.infura.io:5001";
-const HASH: &str = "QmfUwJRRDZxGo8jMvKVGxj6FDn8xsMXcyEbRrYaScCXhRv";
+const HASH: &str = "QmVmtc7neQAqe5hpmnQYLmH8wY2DGVTm73fCywbZ5cDaqs";
 
 async fn request_tree() -> String {
     let auth_header = format!(
@@ -31,7 +30,6 @@ async fn request_tree() -> String {
     }
 }
 // const RAW_YAML_EXAMPLE: &str = include_str!("example.yaml"); // Will be used for the initial state. //***
-
 
 #[derive(Properties, PartialEq)]
 pub struct Properties {
@@ -88,43 +86,23 @@ pub fn yaml_form(properties: &Properties) -> Html {
     html! { <div> {input} {output} </div> }
 }
 
-// #[function_component(App)]
-// pub fn app() -> Html {
-//     let raw_yaml_string = String::from(RAW_YAML_EXAMPLE); //***
-
-//     html! {
-//         <div>
-//         <YamlForm name="yaml_form" value={raw_yaml_string} />
-//         </div>
-//     }
-// }
-
 #[function_component(App)]
 fn app() -> Html {
-    let response_state = use_state(|| String::from("Loading..."));
+    let response_state: UseStateHandle<Option<String>> = use_state(|| None);
+
     {
         let response_state = response_state.clone();
         spawn_local(async move {
             let result = request_tree().await;
-            response_state.set(result);
+            response_state.set(Some(result));
         });
     }
 
-    if response_state.to_string() == "Loading..." {
-        html! {
-            <div>
-                { "Loading..." }
-            </div>
-        }
-    } else {
-        html! {
-            <div>
-                <YamlForm name="yaml_form" value={response_state.to_string()} />
-            </div>
-        }
+    match &*response_state {
+        None => html! { "Loading..." },
+        Some(content) => html! { <YamlForm name="yaml_form" value={content.clone()} /> },
     }
 }
-
 
 fn main() {
     yew::Renderer::<App>::new().render();
