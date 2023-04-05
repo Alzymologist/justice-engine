@@ -101,21 +101,30 @@ pub fn yaml_form(properties: &Properties) -> Html {
 
 #[function_component(App)]
 fn app() -> Html {
-    let response_state = use_state(|| 
-        String::from("Loading..."));
+    let response_state = use_state(|| String::from("Loading..."));
     {
         let response_state = response_state.clone();
-            spawn_local(async move {
-                let result = request_tree().await; 
-                response_state.set(result);
-            });
+        spawn_local(async move {
+            let result = request_tree().await;
+            response_state.set(result);
+        });
     }
-    html! {
-        <div>
-        <YamlForm name="yaml_form" value={format!("{:?}", response_state)} />
-        </div>
+
+    if response_state.to_string() == "Loading..." {
+        html! {
+            <div>
+                { "Loading..." }
+            </div>
+        }
+    } else {
+        html! {
+            <div>
+                <YamlForm name="yaml_form" value={response_state.to_string()} />
+            </div>
+        }
     }
 }
+
 
 fn main() {
     yew::Renderer::<App>::new().render();
