@@ -29,7 +29,6 @@ async fn request_tree() -> String {
         Err(err) => err.to_string(),
     }
 }
-// const RAW_YAML_EXAMPLE: &str = include_str!("example.yaml"); // Will be used for the initial state. //***
 
 #[derive(Properties, PartialEq)]
 pub struct Properties {
@@ -90,7 +89,7 @@ pub fn yaml_form(properties: &Properties) -> Html {
 fn app() -> Html {
     let response_state: UseStateHandle<Option<String>> = use_state(|| None);
 
-    {
+   if response_state.is_none() {
         let response_state = response_state.clone();
         spawn_local(async move {
             let result = request_tree().await;

@@ -688,7 +688,7 @@ function initSync(module) {
 
 async function init(input) {
     if (typeof input === 'undefined') {
-        input = new URL('justice_hash_rough-d6d5bdca62028653_bg.wasm', import.meta.url);
+        input = new URL('justice_hash_rough-ff7c9c5e1da113db_bg.wasm', import.meta.url);
     }
     const imports = getImports();
 
